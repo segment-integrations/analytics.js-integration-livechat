@@ -2,14 +2,14 @@
   "name": "analytics.js-integration-livechat",
   "repo": "segment-integrations/analytics.js-integration-livechat",
   "description": "The Livechat analytics.js integration.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "main": "lib/index.js",
   "dependencies": {
     "segmentio/facade": "1.x",
     "component/clone": "0.1.0",
     "component/each": "0.0.1",
-    "segmentio/analytics.js-integration": "0.3.x",
+    "segmentio/analytics.js-integration": "^1.0.0",
     "timoxley/next-tick": "0.0.2",
     "segmentio/when": "0.0.1"
   },
