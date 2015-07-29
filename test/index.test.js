@@ -64,18 +64,23 @@ describe('LiveChat', function() {
     });
   });
 
-  describe('loading', function() {
-    it('should load', function(done) {
-      analytics.load(livechat, function() {
-        analytics.assert(window.LC_Invite);
-        analytics.assert(window.LC_API);
-        done();
-      });
-    });
-  });
-
   describe('after loading', function() {
     beforeEach(function(done) {
+      // Mock out the LiveChat API in lieu of loading the full library.
+      //
+      // Livechat creates a lot of JSONP callbacks that count on all
+      // LiveChat globals still being present when the data comes back
+      // from LiveChat's APIs. Because .reset() and sandbox() remove
+      // all globals, these callbacks throw an error, which causes
+      // PhantomJS to fail. Mocking this stuff gets around those errors.
+      //
+      // Ghetto, but works.
+      livechat.load = function() {
+        this.ready();
+      };
+      window.LC_API = {
+        set_custom_variables: function() {}
+      };
       analytics.once('ready', done);
       analytics.initialize();
       analytics.page();
@@ -154,6 +159,18 @@ describe('LiveChat', function() {
           analytics.called(analytics.track, 'Live Chat Conversation Ended', {}, { context: { integration: { name: 'snapengage', version: '1.0.0' } } });
           done();
         }, 3000);
+      });
+    });
+  });
+
+  // XXX: This test must always run last or there may be unexpected test
+  // failures, see @nathan for details
+  describe('loading', function() {
+    it('should load', function(done) {
+      analytics.load(livechat, function() {
+        analytics.assert(window.LC_Invite);
+        analytics.assert(window.LC_API);
+        done();
       });
     });
   });
