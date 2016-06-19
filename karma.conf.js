@@ -3,6 +3,10 @@
 
 module.exports = function(config) {
   config.set({
+    browserDisconnectTolerance: 5,
+    browserDisconnectTimeout: 50000,
+    browserNoActivityTimeout: 50000,
+
     files: [
       'test/**/*.test.js'
     ],
@@ -21,7 +25,7 @@ module.exports = function(config) {
       mocha: {
         grep: process.env.GREP,
         reporter: 'html',
-        timeout: 10000
+        timeout: 50000
       }
     },
 
