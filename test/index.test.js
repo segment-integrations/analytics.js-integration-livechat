@@ -1,8 +1,9 @@
+'use strict';
 
-var Analytics = require('analytics.js-core').constructor;
-var integration = require('analytics.js-integration');
-var sandbox = require('clear-env');
-var tester = require('analytics.js-integration-tester');
+var Analytics = require('@segment/analytics.js-core').constructor;
+var integration = require('@segment/analytics.js-integration');
+var sandbox = require('@segment/clear-env');
+var tester = require('@segment/analytics.js-integration-tester');
 var LiveChat = require('../lib/');
 
 describe('LiveChat', function() {
@@ -13,7 +14,15 @@ describe('LiveChat', function() {
     listen: true
   };
 
+  var events = [];
+  var originalAddEventListener = window.addEventListener;
+
   beforeEach(function() {
+    window.addEventListener = function() {
+      events.push(arguments);
+      return originalAddEventListener.apply(window, arguments);
+    };
+
     analytics = new Analytics();
     livechat = new LiveChat(options);
     analytics.use(LiveChat);
@@ -22,10 +31,28 @@ describe('LiveChat', function() {
   });
 
   afterEach(function() {
+    events.forEach(function(args) {
+      window.removeEventListener.apply(window, args);
+    });
+    window.addEventListener = originalAddEventListener;
+
     analytics.restore();
     analytics.reset();
     livechat.reset();
     sandbox();
+  });
+
+  after(function() {
+    window.LC_API = {
+      on_chat_state_changed: function() {},
+      conf: function() {},
+      windowRef: function() {}
+    };
+    window.LC_Invite = {
+      windowRef: function() {},
+      embedded_chat_enabled: function() {}
+    };
+    window.__lc_lang = function() {};
   });
 
   it('should have the right settings', function() {
@@ -35,6 +62,7 @@ describe('LiveChat', function() {
       .global('LC_Invite')
       .global('__lc')
       .global('__lc_inited')
+      .global('__lc_lang')
       .option('license', '')
       .option('listen', false);
 
